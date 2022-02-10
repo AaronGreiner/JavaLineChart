@@ -37,7 +37,7 @@ public class LineChartPanel extends JPanel {
     private ArrayList<Integer> listValue = new ArrayList<Integer>();
     private ArrayList<Point> listPoints = new ArrayList<Point>();
     
-    private int x_numElements = 500; //Eigentlich überflüssig
+    private int x_numElements = 30; //Eigentlich überflüssig
     private int y_numElements = 20; //Eigentlich überflüssig
     
     private float mouse_dist;
@@ -99,11 +99,8 @@ public class LineChartPanel extends JPanel {
         
         //Punkte Anzeigen:
         if (paint_line_maks) {
-            //g2.setColor(Color.red);
             g2.drawOval(pos_zero.x - 3, pos_zero.y - 3, 6, 6);
-            //g2.setColor(Color.green);
             g2.drawOval(pos_x.x - 3, pos_x.y - 3, 6, 6);
-            //g2.setColor(Color.blue);
             g2.drawOval(pos_y.x - 3, pos_y.y - 3, 6, 6);
         }
         
@@ -117,12 +114,12 @@ public class LineChartPanel extends JPanel {
         
         //X-Achse Einteilung:
         int x_length = pos_x.x - pos_zero.x;
-        int x_ElementDist = x_length / x_numElements;
+        double x_ElementDist = (double)x_length / x_numElements;
         
         if (paint_line_maks) {
             for (int i = 0; i < x_numElements; i++) {
                 
-                g2.drawOval((pos_zero.x + (x_ElementDist * i) ) - 3, pos_x.y - 3, 6, 6); //Wenn i = 0 kann noch abgefangen werden
+                g2.drawOval((int)((pos_zero.x + Math.round(x_ElementDist * i) ) - 3), pos_x.y - 3, 6, 6); //Wenn i = 0 kann noch abgefangen werden
                 
             }
         }
@@ -149,7 +146,7 @@ public class LineChartPanel extends JPanel {
         for (int i = 0; i < x_numElements; i++) {
             
             pointTemp.y = (int)(pos_zero.y - listValue.get(i) * temp);
-            pointTemp.x = pos_zero.x + (x_ElementDist * i);
+            pointTemp.x = (int)(pos_zero.x + Math.round(x_ElementDist * i));
             
             listPoints.add(new Point(pointTemp));
             g2.fillOval(pointTemp.x - 3, pointTemp.y - 3, 6, 6);
