@@ -2,7 +2,6 @@ package components;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -10,7 +9,6 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.event.MouseMotionListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -19,24 +17,30 @@ import javax.swing.JPanel;
 
 public class LineChartPanel extends JPanel {
     
-    private boolean debug_mode = false;
+    //Einstellungen für Nutzer: (Später mit Setter bearbeitbar)
+    private boolean debug_mode = false; //Muss noch implementiert werden
+    private boolean paint_x_achse = true;
+    private boolean paint_y_achse = true;
+    private boolean paint_line_maks = false;
+    
+    private int offset_border = 10;
+    
+    //Nicht durch Nutzer bearbeiten:
     private boolean check_highlight_close_point = false;
     
-    private int offset_border = 20;
+    private Point pos_x = new Point();
+    private Point pos_y = new Point();
+    private Point pos_zero = new Point();
+    private Point pos_mouse = new Point();
     
-    private Point x_pos = new Point();
-    private Point y_pos = new Point();
-    private Point zero_pos = new Point();
-
-    private ArrayList<String> x_listString = new ArrayList<String>();
-    private ArrayList<Integer> x_listValue = new ArrayList<Integer>();
-    private ArrayList<Point> x_listPoints = new ArrayList<Point>();
+    private ArrayList<String> listString = new ArrayList<String>();
+    private ArrayList<Integer> listValue = new ArrayList<Integer>();
+    private ArrayList<Point> listPoints = new ArrayList<Point>();
     
-    private int x_numElements = 50;
-    private int y_numElements = 20;
+    private int x_numElements = 500; //Eigentlich überflüssig
+    private int y_numElements = 20; //Eigentlich überflüssig
     
-    private Point mouse_pos = new Point();
-    private double mouse_dist;
+    private float mouse_dist;
     
     public LineChartPanel() {
         
@@ -75,77 +79,79 @@ public class LineChartPanel extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); //Antialiasing
         
         //Wenn keine Elemente gefüllt, dann nichts malen:
-        if (x_listValue.size() <= 0) {
+        if (listValue.size() <= 0) {
             return;
         }
         
-        x_listPoints.clear();
+        listPoints.clear();
         
         //Positionen berechnen:
         Dimension d = this.getSize();
         
-        x_pos.x = d.width - offset_border;
-        x_pos.y = d.height - offset_border;
+        pos_x.x = d.width - offset_border;
+        pos_x.y = d.height - offset_border;
         
-        y_pos.x = offset_border;
-        y_pos.y = offset_border;
+        pos_y.x = offset_border;
+        pos_y.y = offset_border;
         
-        zero_pos.x = offset_border;
-        zero_pos.y = d.height - offset_border;
+        pos_zero.x = offset_border;
+        pos_zero.y = d.height - offset_border;
         
         //Punkte Anzeigen:
-        g2.setColor(Color.red);
-        g2.drawOval(zero_pos.x - 3, zero_pos.y - 3, 6, 6);
-        g2.setColor(Color.green);
-        g2.drawOval(x_pos.x - 3, x_pos.y - 3, 6, 6);
-        g2.setColor(Color.blue);
-        g2.drawOval(y_pos.x - 3, y_pos.y - 3, 6, 6);
+        if (paint_line_maks) {
+            //g2.setColor(Color.red);
+            g2.drawOval(pos_zero.x - 3, pos_zero.y - 3, 6, 6);
+            //g2.setColor(Color.green);
+            g2.drawOval(pos_x.x - 3, pos_x.y - 3, 6, 6);
+            //g2.setColor(Color.blue);
+            g2.drawOval(pos_y.x - 3, pos_y.y - 3, 6, 6);
+        }
         
         //Linien anzeigen:
-        g2.setColor(Color.white);
-        
-        g2.drawLine(zero_pos.x, zero_pos.y, x_pos.x, x_pos.y); //X Achse
-        g2.drawLine(zero_pos.x, zero_pos.y, y_pos.x, y_pos.y); //Y Achse
+        if (paint_x_achse) {
+            g2.drawLine(pos_zero.x, pos_zero.y, pos_x.x, pos_x.y); //X Achse
+        }
+        if (paint_y_achse) {
+            g2.drawLine(pos_zero.x, pos_zero.y, pos_y.x, pos_y.y); //Y Achse
+        }
         
         //X-Achse Einteilung:
-        int x_length = x_pos.x - zero_pos.x;
-//        System.out.println("X Length: " + x_length);
+        int x_length = pos_x.x - pos_zero.x;
         int x_ElementDist = x_length / x_numElements;
-//        System.out.println("X Element Dist: " + x_ElementDist);
         
-        for (int i = 0; i < x_numElements; i++) {
-            
-            g2.drawOval((zero_pos.x + (x_ElementDist * i) ) - 3, x_pos.y - 3, 6, 6); //Wenn i = 0 kann noch abgefangen werden
-            
+        if (paint_line_maks) {
+            for (int i = 0; i < x_numElements; i++) {
+                
+                g2.drawOval((pos_zero.x + (x_ElementDist * i) ) - 3, pos_x.y - 3, 6, 6); //Wenn i = 0 kann noch abgefangen werden
+                
+            }
         }
         
         //Y-Achse Einteilung:
-        int y_length = zero_pos.y - y_pos.y;
-//        System.out.println("Y Length: " + y_length);
+        int y_length = pos_zero.y - pos_y.y;
         int y_ElementDist = y_length / y_numElements;
-//        System.out.println("Y Element Dist: " + y_ElementDist);
         
-        for (int i = 0; i < y_numElements; i++) {
-            
-            g2.drawOval(y_pos.x - 3, (zero_pos.y - (y_ElementDist * i) ) - 3, 6, 6); //Wenn i = 0 kann noch abgefangen werden
-            
+        if (paint_line_maks) {
+            for (int i = 0; i < y_numElements; i++) {
+                
+                g2.drawOval(pos_y.x - 3, (pos_zero.y - (y_ElementDist * i) ) - 3, 6, 6); //Wenn i = 0 kann noch abgefangen werden
+                
+            }
         }
         
         //Daten anzeigen:
         g2.setColor(Color.white);
         Point pointTemp = new Point();
         Point pointTemp2 = new Point();
-        int max_value = Collections.max(x_listValue);
-//        System.out.println("MAX_VALUE: " + max_value);
+        int max_value = Collections.max(listValue);
         double temp = Double.valueOf(y_length) / Double.valueOf(max_value);
-//        System.out.println("TEMP: " + temp);
         
         for (int i = 0; i < x_numElements; i++) {
             
-            pointTemp.y = (int)(zero_pos.y - x_listValue.get(i) * temp);
-            pointTemp.x = zero_pos.x + (x_ElementDist * i);
+            pointTemp.y = (int)(pos_zero.y - listValue.get(i) * temp);
+            pointTemp.x = pos_zero.x + (x_ElementDist * i);
             
-            x_listPoints.add(new Point(pointTemp));
+            listPoints.add(new Point(pointTemp));
             g2.fillOval(pointTemp.x - 3, pointTemp.y - 3, 6, 6);
             
             if (i != 0) {
@@ -158,7 +164,7 @@ public class LineChartPanel extends JPanel {
         }
         
         //Test MausMovement;
-        if ( check_highlight_close_point && mouse_pos != null ) {
+        if ( check_highlight_close_point && pos_mouse != null ) {
             Point point_temp = new Point(getClosestPoint());
             if (mouse_dist < 50) {
                 g2.setColor(Color.red);
@@ -171,8 +177,8 @@ public class LineChartPanel extends JPanel {
         
         //Daten Zufällig generieren:
         for (int i = 0; i < x_numElements; i++) {
-            x_listString.add(LocalDate.now().plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
-            x_listValue.add((int)(Math.random()*1000));
+            listString.add(LocalDate.now().plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+            listValue.add((int)(Math.random()*1000));
         }
     }
     
@@ -180,21 +186,19 @@ public class LineChartPanel extends JPanel {
         
         Point ret = new Point();
         
-        double x1 = mouse_pos.x;
-        double y1 = mouse_pos.y;
-        double x2;
-        double y2;
-        double dist;
-        double dist_temp = 999999;
+        float x1 = pos_mouse.x;
+        float y1 = pos_mouse.y;
+        float x2;
+        float y2;
+        float dist;
+        float dist_temp = 999999;
         
-        for (Point p : x_listPoints) {
+        for (Point p : listPoints) {
             
             x2 = p.x;
             y2 = p.y;
             
-            dist = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-            
-//            System.out.println("DIST: " + dist + " - " + x2 + " - " + y2 );
+            dist = (float)Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
             
             if (dist < dist_temp) {
                 ret = new Point(p);
@@ -210,9 +214,8 @@ public class LineChartPanel extends JPanel {
     }
     
     private void chartMouseMoved(MouseEvent evt) {
-        mouse_pos.x = evt.getX();
-        mouse_pos.y = evt.getY();
-//        System.out.println("X:" + mouse_pos.x + " Y:" + mouse_pos.y);
+        pos_mouse.x = evt.getX();
+        pos_mouse.y = evt.getY();
         
         this.repaint();
     }
