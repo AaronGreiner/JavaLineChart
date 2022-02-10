@@ -29,6 +29,7 @@ public class LineChartPanel extends javax.swing.JPanel {
     private int y_numElements = 20;
     
     private Point mouse_pos = new Point();
+    private double mouse_dist;
     
     public LineChartPanel() {
         
@@ -127,12 +128,12 @@ public class LineChartPanel extends javax.swing.JPanel {
         }
         
         //Test MausMovement;
-        g2.fillOval(mouse_pos.x - 3, mouse_pos.y - 3, 6, 6);
-        
         if ( mouse_pos != null ) {
             Point point_temp = new Point(getClosestPoint());
-            g2.setColor(Color.red);
-            g2.fillOval(point_temp.x - 6, point_temp.y - 6, 12, 12);
+            if (mouse_dist < 50) {
+                g2.setColor(Color.red);
+                g2.fillOval(point_temp.x - 6, point_temp.y - 6, 12, 12);
+            }
         }        
     }
     
@@ -145,7 +146,7 @@ public class LineChartPanel extends javax.swing.JPanel {
         double x2;
         double y2;
         double dist;
-        double dist_temp = 9999;
+        double dist_temp = 999999;
         
         for (Point p : x_listPoints) {
             
@@ -161,7 +162,7 @@ public class LineChartPanel extends javax.swing.JPanel {
                 dist_temp = dist;
             }
         }
-        
+        mouse_dist = dist_temp;
         return ret;
     }
     
