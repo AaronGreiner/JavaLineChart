@@ -21,9 +21,10 @@ public class LineChartPanel extends JPanel {
     private boolean debug_mode = false; //Muss noch implementiert werden
     private boolean paint_x_achse = true;
     private boolean paint_y_achse = true;
-    private boolean paint_line_maks = false;
+    private boolean paint_line_marks = true;
     
     private int offset_border = 10;
+    private int size_line_marks = 2;
     
     //Nicht durch Nutzer bearbeiten:
     private boolean check_highlight_close_point = false;
@@ -37,8 +38,8 @@ public class LineChartPanel extends JPanel {
     private ArrayList<Integer> listValue = new ArrayList<Integer>();
     private ArrayList<Point> listPoints = new ArrayList<Point>();
     
-    private int x_numElements = 30; //Eigentlich überflüssig
-    private int y_numElements = 20; //Eigentlich überflüssig
+    private int x_numElements = 50; //Eigentlich überflüssig
+    private int y_numElements = 10; //Eigentlich überflüssig
     
     private float mouse_dist;
     
@@ -98,10 +99,10 @@ public class LineChartPanel extends JPanel {
         pos_zero.y = d.height - offset_border;
         
         //Punkte Anzeigen:
-        if (paint_line_maks) {
-            g2.drawOval(pos_zero.x - 3, pos_zero.y - 3, 6, 6);
-            g2.drawOval(pos_x.x - 3, pos_x.y - 3, 6, 6);
-            g2.drawOval(pos_y.x - 3, pos_y.y - 3, 6, 6);
+        if (paint_line_marks) {
+            //g2.fillOval(pos_zero.x - 3, pos_zero.y - 3, 7, 7);
+            g2.fillOval(pos_x.x - 3, pos_x.y - 3, 7, 7);
+            g2.fillOval(pos_y.x - 3, pos_y.y - 3, 7, 7);
         }
         
         //Linien anzeigen:
@@ -116,23 +117,36 @@ public class LineChartPanel extends JPanel {
         int x_length = pos_x.x - pos_zero.x;
         double x_ElementDist = (double)x_length / x_numElements;
         
-        if (paint_line_maks) {
+        if (paint_line_marks) {
             for (int i = 0; i < x_numElements; i++) {
-                
-                g2.drawOval((int)((pos_zero.x + Math.round(x_ElementDist * i) ) - 3), pos_x.y - 3, 6, 6); //Wenn i = 0 kann noch abgefangen werden
-                
+                if (i != 0) {
+                    
+                    int pos = (int)((pos_zero.x + Math.round(x_ElementDist * i)));
+                    int x1 = pos;
+                    int y1 = pos_x.y + size_line_marks;
+                    int x2 = pos;
+                    int y2 = pos_x.y - size_line_marks;
+                    
+                    g2.drawLine(x1, y1, x2, y2);
+                }
             }
         }
         
         //Y-Achse Einteilung:
         int y_length = pos_zero.y - pos_y.y;
-        int y_ElementDist = y_length / y_numElements;
+        double y_ElementDist = (double)y_length / y_numElements;
         
-        if (paint_line_maks) {
+        if (paint_line_marks) {
             for (int i = 0; i < y_numElements; i++) {
-                
-                g2.drawOval(pos_y.x - 3, (pos_zero.y - (y_ElementDist * i) ) - 3, 6, 6); //Wenn i = 0 kann noch abgefangen werden
-                
+                if (i != 0) {
+                    int pos = (int)((pos_zero.y - Math.round(y_ElementDist * i)));
+                    int x1 = pos_y.x + size_line_marks;
+                    int y1 = pos;
+                    int x2 = pos_y.x - size_line_marks;
+                    int y2 = pos;
+                    
+                    g2.drawLine(x1, y1, x2, y2);
+                }
             }
         }
         
