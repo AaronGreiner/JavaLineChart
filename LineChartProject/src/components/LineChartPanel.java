@@ -21,10 +21,15 @@ public class LineChartPanel extends JPanel {
     private boolean debug_mode = false; //Muss noch implementiert werden
     private boolean paint_x_achse = true;
     private boolean paint_y_achse = true;
-    private boolean paint_line_marks = true;
+    private boolean paint_line_marks = false;
+    private boolean paint_dot = true;
     
     private int offset_border = 10;
     private int size_line_marks = 2;
+    
+    private Color color_primary = Color.white;
+    private Color color_secondary = Color.lightGray;
+    private Color color_highlight = Color.red;
     
     //Nicht durch Nutzer bearbeiten:
     private boolean check_highlight_close_point = false;
@@ -38,7 +43,7 @@ public class LineChartPanel extends JPanel {
     private ArrayList<Integer> listValue = new ArrayList<Integer>();
     private ArrayList<Point> listPoints = new ArrayList<Point>();
     
-    private int x_numElements = 50; //Eigentlich überflüssig
+    private int x_numElements = 100; //Eigentlich überflüssig
     private int y_numElements = 10; //Eigentlich überflüssig
     
     private float mouse_dist;
@@ -78,6 +83,7 @@ public class LineChartPanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); //Antialiasing
+        g2.setColor(color_secondary);
         
         //Wenn keine Elemente gefüllt, dann nichts malen:
         if (listValue.size() <= 0) {
@@ -151,7 +157,7 @@ public class LineChartPanel extends JPanel {
         }
         
         //Daten anzeigen:
-        g2.setColor(Color.white);
+        g2.setColor(color_primary);
         Point pointTemp = new Point();
         Point pointTemp2 = new Point();
         int max_value = Collections.max(listValue);
@@ -163,7 +169,9 @@ public class LineChartPanel extends JPanel {
             pointTemp.x = (int)(pos_zero.x + Math.round(x_ElementDist * i));
             
             listPoints.add(new Point(pointTemp));
-            g2.fillOval(pointTemp.x - 3, pointTemp.y - 3, 6, 6);
+            if (paint_dot) {
+                g2.fillOval(pointTemp.x - 2, pointTemp.y - 2, 5, 5);
+            }
             
             if (i != 0) {
                 g2.drawLine(pointTemp2.x, pointTemp2.y, pointTemp.x, pointTemp.y);
@@ -178,7 +186,7 @@ public class LineChartPanel extends JPanel {
         if ( check_highlight_close_point && pos_mouse != null ) {
             Point point_temp = new Point(getClosestPoint());
             if (mouse_dist < 50) {
-                g2.setColor(Color.red);
+                g2.setColor(color_highlight);
                 g2.fillOval(point_temp.x - 6, point_temp.y - 6, 12, 12);
             }
         }        
