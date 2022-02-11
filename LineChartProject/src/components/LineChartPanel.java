@@ -22,7 +22,7 @@ public class LineChartPanel extends JPanel {
     private LineType line_type = LineType.CURVED;
     private ToolTipPosition tip_pos = ToolTipPosition.VALUE;
     
-    private boolean debug_mode = false; //Muss noch implementiert werden
+    private boolean debug_mode = false;
     private boolean paint_x_achse = true;
     private boolean paint_y_achse = true;
     private boolean paint_line_marks = false;
