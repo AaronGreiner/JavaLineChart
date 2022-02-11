@@ -9,6 +9,7 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.geom.CubicCurve2D;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -18,14 +19,18 @@ import javax.swing.JPanel;
 public class LineChartPanel extends JPanel {
     
     //Einstellungen für Nutzer: (Später mit Setter bearbeitbar)
+    private LineType line_type = LineType.CURVED;
+    
     private boolean debug_mode = false; //Muss noch implementiert werden
     private boolean paint_x_achse = true;
     private boolean paint_y_achse = true;
     private boolean paint_line_marks = false;
-    private boolean paint_dot = true;
+    private boolean paint_dot = false;
     
     private int offset_border = 10;
     private int size_line_marks = 2;
+    
+    private float size_curve_muliplicator = 1.0f;
     
     private Color color_primary = Color.white;
     private Color color_secondary = Color.lightGray;
@@ -45,6 +50,7 @@ public class LineChartPanel extends JPanel {
     
     private int x_numElements = 100; //Eigentlich überflüssig
     private int y_numElements = 10; //Eigentlich überflüssig
+    private int size_curve = 1;
     
     private float mouse_dist;
     
@@ -160,6 +166,7 @@ public class LineChartPanel extends JPanel {
         g2.setColor(color_primary);
         Point pointTemp = new Point();
         Point pointTemp2 = new Point();
+        size_curve = (int) (x_ElementDist / 2 * size_curve_muliplicator);
         int max_value = Collections.max(listValue);
         double temp = Double.valueOf(y_length) / Double.valueOf(max_value);
         
@@ -174,7 +181,17 @@ public class LineChartPanel extends JPanel {
             }
             
             if (i != 0) {
-                g2.drawLine(pointTemp2.x, pointTemp2.y, pointTemp.x, pointTemp.y);
+                switch (line_type) {
+                    case STRAIGHT:
+                        g2.drawLine(pointTemp2.x, pointTemp2.y, pointTemp.x, pointTemp.y);
+                        break;
+                    case CURVED:
+                        CubicCurve2D c = new CubicCurve2D.Double();
+                        c.setCurve(pointTemp2.x, pointTemp2.y, pointTemp2.x+size_curve, pointTemp2.y, pointTemp.x-size_curve, pointTemp.y, pointTemp.x, pointTemp.y);
+                        g2.setColor(Color.white);
+                        g2.draw(c);
+                        break;
+                }
             }
             
             pointTemp2.x = pointTemp.x;
@@ -187,9 +204,9 @@ public class LineChartPanel extends JPanel {
             Point point_temp = new Point(getClosestPoint());
             if (mouse_dist < 50) {
                 g2.setColor(color_highlight);
-                g2.fillOval(point_temp.x - 6, point_temp.y - 6, 12, 12);
+                g2.drawOval(point_temp.x - 5, point_temp.y - 5, 11, 11);
             }
-        }        
+        }
     }
     
     private void loadDebugData() {
