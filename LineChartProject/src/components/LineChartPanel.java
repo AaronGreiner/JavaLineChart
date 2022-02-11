@@ -58,6 +58,8 @@ public class LineChartPanel extends JPanel {
     
     private float mouse_dist;
     
+    private LineChartToolTip tip = new LineChartToolTip("");
+    
     public LineChartPanel() {
         
         loadDebugData();
@@ -268,6 +270,14 @@ public class LineChartPanel extends JPanel {
         pos_mouse.x = evt.getX();
         pos_mouse.y = evt.getY();
         
+        Dimension d = tip.getPreferredSize();
+        
+        tip.setBounds(pos_mouse.x+10, pos_mouse.y+10, d.width, d.height);
+        tip.setText(String.valueOf(pos_mouse.x));
+        this.add(tip);
+        tip.setVisible(true);
+        
+        
         this.repaint();
     }
     
@@ -290,6 +300,8 @@ public class LineChartPanel extends JPanel {
         if (show_tooltip) {
             ToolTipManager.sharedInstance().setInitialDelay(tooltip_delay);
         }
+        
+        tip.setVisible(false);
         
         this.repaint();
     }
