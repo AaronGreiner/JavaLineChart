@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import javax.swing.JPanel;
+import javax.swing.ToolTipManager;
 
 public class LineChartPanel extends JPanel {
     
@@ -26,6 +27,7 @@ public class LineChartPanel extends JPanel {
     private boolean paint_y_achse = true;
     private boolean paint_line_marks = false;
     private boolean paint_dot = false;
+    private boolean show_tooltip = false;
     
     private int offset_border = 10;
     private int size_line_marks = 2;
@@ -51,6 +53,8 @@ public class LineChartPanel extends JPanel {
     private int x_numElements = 100; //Eigentlich überflüssig
     private int y_numElements = 10; //Eigentlich überflüssig
     private int size_curve = 1;
+    private int tooltip_delay = 0;
+    private int current_index = 0;
     
     private float mouse_dist;
     
@@ -204,7 +208,16 @@ public class LineChartPanel extends JPanel {
             Point point_temp = new Point(getClosestPoint());
             if (mouse_dist < 50) {
                 g2.setColor(color_highlight);
-                g2.drawOval(point_temp.x - 5, point_temp.y - 5, 11, 11);
+                g2.fillOval(point_temp.x - 5, point_temp.y - 5, 11, 11);
+                
+                if (show_tooltip) {
+                    this.setToolTipText(listValue.get(current_index) + "\n" + listString.get(current_index));
+                }
+            } else {
+                
+                if (show_tooltip) {
+                    this.setToolTipText(null);
+                }
             }
         }
     }
@@ -229,18 +242,20 @@ public class LineChartPanel extends JPanel {
         float dist;
         float dist_temp = 999999;
         
-        for (Point p : listPoints) {
+        for (int i = 0; i < listPoints.size(); i++) {
             
-            x2 = p.x;
-            y2 = p.y;
+            x2 = listPoints.get(i).x;
+            y2 = listPoints.get(i).y;
             
             dist = (float)Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
             
             if (dist < dist_temp) {
-                ret = new Point(p);
+                ret = new Point(listPoints.get(i));
                 dist_temp = dist;
+                current_index = i;
             }
         }
+        
         mouse_dist = dist_temp;
         return ret;
     }
@@ -260,12 +275,21 @@ public class LineChartPanel extends JPanel {
         
         check_highlight_close_point = true;
         
+        if (show_tooltip) {
+            tooltip_delay = ToolTipManager.sharedInstance().getInitialDelay();
+            ToolTipManager.sharedInstance().setInitialDelay(0);
+        }
+        
         this.repaint();
     }
     
     private void chartMouseExited(MouseEvent evt) {
         
         check_highlight_close_point = false;
+        
+        if (show_tooltip) {
+            ToolTipManager.sharedInstance().setInitialDelay(tooltip_delay);
+        }
         
         this.repaint();
     }
