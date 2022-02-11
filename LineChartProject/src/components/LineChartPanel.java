@@ -121,7 +121,7 @@ public class LineChartPanel extends JPanel {
         
         //Punkte Anzeigen:
         if (paint_line_marks) {
-            //g2.fillOval(pos_zero.x - 3, pos_zero.y - 3, 7, 7);
+            g2.fillOval(pos_zero.x - 3, pos_zero.y - 3, 7, 7);
             g2.fillOval(pos_x.x - 3, pos_x.y - 3, 7, 7);
             g2.fillOval(pos_y.x - 3, pos_y.y - 3, 7, 7);
         }
