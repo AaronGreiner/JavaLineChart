@@ -15,19 +15,19 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import javax.swing.JPanel;
-import javax.swing.ToolTipManager;
 
 public class LineChartPanel extends JPanel {
     
     //Einstellungen für Nutzer: (Später mit Setter bearbeitbar)
     private LineType line_type = LineType.CURVED;
+    private ToolTipPosition tip_pos = ToolTipPosition.VALUE;
     
     private boolean debug_mode = false; //Muss noch implementiert werden
     private boolean paint_x_achse = true;
     private boolean paint_y_achse = true;
     private boolean paint_line_marks = false;
     private boolean paint_dot = false;
-    private boolean show_tooltip = false;
+    private boolean show_tooltip = true;
     
     private int offset_border = 10;
     private int size_line_marks = 2;
@@ -53,12 +53,11 @@ public class LineChartPanel extends JPanel {
     private int x_numElements = 100; //Eigentlich überflüssig
     private int y_numElements = 10; //Eigentlich überflüssig
     private int size_curve = 1;
-    private int tooltip_delay = 0;
     private int current_index = 0;
     
     private float mouse_dist;
     
-    private LineChartToolTip tip = new LineChartToolTip("");
+    private LineChartToolTip tip = new LineChartToolTip();
     
     public LineChartPanel() {
         
@@ -74,6 +73,10 @@ public class LineChartPanel extends JPanel {
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent evt) {
+                chartMouseMoved(evt);
+            }
+            @Override
+            public void mouseDragged(MouseEvent evt) {
                 chartMouseMoved(evt);
             }
         });
@@ -207,19 +210,13 @@ public class LineChartPanel extends JPanel {
         
         //Test MausMovement;
         if ( check_highlight_close_point && pos_mouse != null ) {
+            
             Point point_temp = new Point(getClosestPoint());
+            
             if (mouse_dist < 50) {
+                
                 g2.setColor(color_highlight);
                 g2.fillOval(point_temp.x - 5, point_temp.y - 5, 11, 11);
-                
-                if (show_tooltip) {
-                    this.setToolTipText(listValue.get(current_index) + "\n" + listString.get(current_index));
-                }
-            } else {
-                
-                if (show_tooltip) {
-                    this.setToolTipText(null);
-                }
             }
         }
     }
@@ -262,6 +259,37 @@ public class LineChartPanel extends JPanel {
         return ret;
     }
     
+    private void showTip(boolean visible) {
+        
+        if (visible) {
+            
+            Dimension d = tip.getPreferredSize();
+            
+            switch (tip_pos) {
+                case CURSOR:
+                    
+                    tip.setBounds(pos_mouse.x+10, pos_mouse.y+10, d.width, d.height);
+                    tip.setText(listValue.get(current_index) + " - " + listString.get(current_index));
+                    this.add(tip);
+                    
+                    break;
+                case VALUE:
+                    
+                    tip.setBounds(listPoints.get(current_index).x+10, listPoints.get(current_index).y-10, d.width, d.height);
+                    tip.setText(listValue.get(current_index) + " - " + listString.get(current_index));
+                    this.add(tip);
+                    
+                    break;
+            }
+            
+            tip.setVisible(true);
+            
+        } else {
+            
+            tip.setVisible(false);
+        }
+    }
+    
     public void setDebugMode(boolean debug_mode) {
         this.debug_mode = debug_mode;
     }
@@ -270,13 +298,9 @@ public class LineChartPanel extends JPanel {
         pos_mouse.x = evt.getX();
         pos_mouse.y = evt.getY();
         
-        Dimension d = tip.getPreferredSize();
-        
-        tip.setBounds(pos_mouse.x+10, pos_mouse.y+10, d.width, d.height);
-        tip.setText(String.valueOf(pos_mouse.x));
-        this.add(tip);
-        tip.setVisible(true);
-        
+        if (show_tooltip) {
+            showTip(true);
+        }
         
         this.repaint();
     }
@@ -284,11 +308,6 @@ public class LineChartPanel extends JPanel {
     private void chartMouseEntered(MouseEvent evt) {
         
         check_highlight_close_point = true;
-        
-        if (show_tooltip) {
-            tooltip_delay = ToolTipManager.sharedInstance().getInitialDelay();
-            ToolTipManager.sharedInstance().setInitialDelay(0);
-        }
         
         this.repaint();
     }
@@ -298,10 +317,8 @@ public class LineChartPanel extends JPanel {
         check_highlight_close_point = false;
         
         if (show_tooltip) {
-            ToolTipManager.sharedInstance().setInitialDelay(tooltip_delay);
+            showTip(false);
         }
-        
-        tip.setVisible(false);
         
         this.repaint();
     }
