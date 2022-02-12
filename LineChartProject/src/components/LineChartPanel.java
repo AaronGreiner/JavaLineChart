@@ -50,7 +50,7 @@ public class LineChartPanel extends JPanel {
     private ArrayList<Integer> listValue = new ArrayList<Integer>();
     private ArrayList<Point> listPoints = new ArrayList<Point>();
     
-    private int x_numElements = 100; //Eigentlich überflüssig
+    private int x_numElements = 31; //Eigentlich überflüssig
     private int y_numElements = 10; //Eigentlich überflüssig
     private int size_curve = 1;
     private int current_index = 0;
