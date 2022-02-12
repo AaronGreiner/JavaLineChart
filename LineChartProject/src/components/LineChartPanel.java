@@ -20,7 +20,7 @@ public class LineChartPanel extends JPanel {
     
     //Einstellungen für Nutzer: (Später mit Setter bearbeitbar)
     private LineType line_type = LineType.CURVED;
-    private ToolTipPosition tip_pos = ToolTipPosition.VALUE;
+    private ToolTipPosition tip_pos = ToolTipPosition.CURSOR;
     
     private boolean debug_mode = false;
     private boolean paint_x_achse = true;
@@ -30,6 +30,8 @@ public class LineChartPanel extends JPanel {
     private boolean show_tooltip = true;
     
     private int offset_border = 10;
+    private int offset_tip_x = 10;
+    private int offset_tip_y = 0;
     private int size_line_marks = 2;
     
     private float size_curve_muliplicator = 1.0f;
@@ -45,6 +47,7 @@ public class LineChartPanel extends JPanel {
     private Point pos_y = new Point();
     private Point pos_zero = new Point();
     private Point pos_mouse = new Point();
+    private Point pos_tip = new Point();
     
     private ArrayList<String> listString = new ArrayList<String>();
     private ArrayList<Integer> listValue = new ArrayList<Integer>();
@@ -232,22 +235,22 @@ public class LineChartPanel extends JPanel {
             
             switch (temp) {
                 case 0:
-                    listString.add(LocalDate.now().plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " - 0");
+                    listString.add(LocalDate.now().plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
                     start_value += 50 + (int)(Math.random()*200);
                     listValue.add(start_value);
                     break;
                 case 1:
-                    listString.add(LocalDate.now().plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " - 1");
+                    listString.add(LocalDate.now().plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
                     start_value -= 10 + (int)(Math.random()*50);
                     listValue.add(start_value);
                     break;
                 case 2:
-                    listString.add(LocalDate.now().plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " - 2");
+                    listString.add(LocalDate.now().plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
                     start_value -= 20 + (int)(Math.random()*50);
                     listValue.add(start_value);
                     break;
                 case 3:
-                    listString.add(LocalDate.now().plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " - 3");
+                    listString.add(LocalDate.now().plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
                     start_value -= 30 + (int)(Math.random()*50);
                     listValue.add(start_value);
                     break;
@@ -288,24 +291,48 @@ public class LineChartPanel extends JPanel {
         
         if (visible && mouse_dist < 50) {
             
-            Dimension d = tip.getPreferredSize();
+            Dimension dim_tip = tip.getPreferredSize();
+            Dimension dim_chart = this.getSize();
             
             switch (tip_pos) {
                 case CURSOR:
                     
-                    tip.setBounds(pos_mouse.x+10, pos_mouse.y+10, d.width, d.height);
-                    tip.setText(listString.get(current_index), String.valueOf(listValue.get(current_index)));
-                    this.add(tip);
+                    pos_tip.x = pos_mouse.x;
+                    pos_tip.y = pos_mouse.y;
                     
                     break;
                 case VALUE:
                     
-                    tip.setBounds(listPoints.get(current_index).x+10, listPoints.get(current_index).y-10, d.width, d.height);
-                    tip.setText(listString.get(current_index), String.valueOf(listValue.get(current_index)));
-                    this.add(tip);
+                    pos_tip.x = listPoints.get(current_index).x;
+                    pos_tip.y = listPoints.get(current_index).y;
                     
                     break;
             }
+            
+            if (dim_chart.width >= pos_tip.x + dim_tip.width + offset_tip_x) {
+                
+                pos_tip.x = pos_tip.x + offset_tip_x;
+                
+            } else {
+                
+                pos_tip.x = pos_tip.x - dim_tip.width - offset_tip_x;
+            }
+            
+            if (dim_chart.height >= pos_tip.y + dim_tip.height + offset_tip_y) {
+                
+                pos_tip.y = pos_tip.y + offset_tip_y;
+                
+            } else {
+                
+                pos_tip.y = pos_tip.y - dim_tip.height + offset_tip_y;
+            }
+            
+            tip.setBounds(pos_tip.x, pos_tip.y, dim_tip.width, dim_tip.height);
+            
+            
+            
+            tip.setText(listString.get(current_index), String.valueOf(listValue.get(current_index)));
+            this.add(tip);
             
             tip.setVisible(true);
             
