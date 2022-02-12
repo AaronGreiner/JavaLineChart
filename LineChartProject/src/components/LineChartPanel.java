@@ -50,7 +50,7 @@ public class LineChartPanel extends JPanel {
     private ArrayList<Integer> listValue = new ArrayList<Integer>();
     private ArrayList<Point> listPoints = new ArrayList<Point>();
     
-    private int x_numElements = 31; //Eigentlich überflüssig
+    private int x_numElements = 200; //Eigentlich überflüssig
     private int y_numElements = 10; //Eigentlich überflüssig
     private int size_curve = 1;
     private int current_index = 0;
@@ -223,10 +223,35 @@ public class LineChartPanel extends JPanel {
     
     private void loadDebugData() {
         
-        //Daten Zufällig generieren:
+        //Daten Zufällig generieren V2:
+        int start_value = 1000;
+        
         for (int i = 0; i < x_numElements; i++) {
-            listString.add(LocalDate.now().plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
-            listValue.add((int)(Math.random()*1000));
+            
+            int temp = (int)(Math.random()*4);
+            
+            switch (temp) {
+                case 0:
+                    listString.add(LocalDate.now().plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " - 0");
+                    start_value += 50 + (int)(Math.random()*200);
+                    listValue.add(start_value);
+                    break;
+                case 1:
+                    listString.add(LocalDate.now().plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " - 1");
+                    start_value -= 10 + (int)(Math.random()*50);
+                    listValue.add(start_value);
+                    break;
+                case 2:
+                    listString.add(LocalDate.now().plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " - 2");
+                    start_value -= 20 + (int)(Math.random()*50);
+                    listValue.add(start_value);
+                    break;
+                case 3:
+                    listString.add(LocalDate.now().plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " - 3");
+                    start_value -= 30 + (int)(Math.random()*50);
+                    listValue.add(start_value);
+                    break;
+            }
         }
     }
     
@@ -261,7 +286,7 @@ public class LineChartPanel extends JPanel {
     
     private void showTip(boolean visible) {
         
-        if (visible) {
+        if (visible && mouse_dist < 50) {
             
             Dimension d = tip.getPreferredSize();
             
@@ -269,14 +294,14 @@ public class LineChartPanel extends JPanel {
                 case CURSOR:
                     
                     tip.setBounds(pos_mouse.x+10, pos_mouse.y+10, d.width, d.height);
-                    tip.setText(listValue.get(current_index) + " - " + listString.get(current_index));
+                    tip.setText(listString.get(current_index), String.valueOf(listValue.get(current_index)));
                     this.add(tip);
                     
                     break;
                 case VALUE:
                     
                     tip.setBounds(listPoints.get(current_index).x+10, listPoints.get(current_index).y-10, d.width, d.height);
-                    tip.setText(listValue.get(current_index) + " - " + listString.get(current_index));
+                    tip.setText(listString.get(current_index), String.valueOf(listValue.get(current_index)));
                     this.add(tip);
                     
                     break;

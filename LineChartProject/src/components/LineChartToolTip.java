@@ -2,27 +2,36 @@ package components;
 
 import com.formdev.flatlaf.ui.FlatBorder;
 import java.awt.BorderLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 public class LineChartToolTip extends JPanel {
     
-    private JLabel label;
+    private JLabel labelText;
+    private JLabel labelValue;
     
     public LineChartToolTip() {
         
         this.setLayout(new BorderLayout());
         this.setBorder(new FlatBorder());
         
-        label = new JLabel();
-        label.setBorder(new EmptyBorder(5, 5, 5, 5));
+        labelText = new JLabel();
+        labelText.setBorder(new EmptyBorder(5, 5, 0, 5));
+        labelText.setIcon(new ImageIcon(getClass().getResource("/images/today_18.png")));
         
-        this.add(label, BorderLayout.CENTER);
+        labelValue = new JLabel();
+        labelValue.setBorder(new EmptyBorder(0, 5, 5, 5));
+        labelValue.setIcon(new ImageIcon(getClass().getResource("/images/euro_18.png")));
+        
+        this.add(labelText, BorderLayout.CENTER);
+        this.add(labelValue, BorderLayout.PAGE_END);
     }
     
-    public void setText(String s) {
-        label.setText(s);
+    public void setText(String sText, String sValue) {
+        labelText.setText(sText);
+        labelValue.setText(sValue);
     }
     
 }
