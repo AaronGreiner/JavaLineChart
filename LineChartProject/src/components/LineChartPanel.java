@@ -1,5 +1,6 @@
 package components;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -35,10 +36,11 @@ public class LineChartPanel extends JPanel {
     private int size_line_marks = 2;
     
     private float size_curve_muliplicator = 1.0f;
+    private float size_stroke = 2.0f;
     
     private Color color_primary = Color.white;
-    private Color color_secondary = Color.lightGray;
-    private Color color_highlight = Color.red;
+    private Color color_secondary = Color.LIGHT_GRAY;
+    private Color color_highlight = Color.cyan;
     
     //Nicht durch Nutzer bearbeiten:
     private boolean check_highlight_close_point = false;
@@ -53,7 +55,7 @@ public class LineChartPanel extends JPanel {
     private ArrayList<Integer> listValue = new ArrayList<Integer>();
     private ArrayList<Point> listPoints = new ArrayList<Point>();
     
-    private int x_numElements = 200; //Eigentlich überflüssig
+    private int x_numElements = 100; //Eigentlich überflüssig
     private int y_numElements = 10; //Eigentlich überflüssig
     private int size_curve = 1;
     private int current_index = 0;
@@ -176,6 +178,7 @@ public class LineChartPanel extends JPanel {
         
         //Daten anzeigen:
         g2.setColor(color_primary);
+        g2.setStroke(new BasicStroke(size_stroke));
         Point pointTemp = new Point();
         Point pointTemp2 = new Point();
         size_curve = (int) (x_ElementDist / 2 * size_curve_muliplicator);
@@ -200,7 +203,6 @@ public class LineChartPanel extends JPanel {
                     case CURVED:
                         CubicCurve2D c = new CubicCurve2D.Double();
                         c.setCurve(pointTemp2.x, pointTemp2.y, pointTemp2.x+size_curve, pointTemp2.y, pointTemp.x-size_curve, pointTemp.y, pointTemp.x, pointTemp.y);
-                        g2.setColor(Color.white);
                         g2.draw(c);
                         break;
                 }
