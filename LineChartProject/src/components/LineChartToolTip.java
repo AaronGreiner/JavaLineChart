@@ -2,6 +2,7 @@ package components;
 
 import com.formdev.flatlaf.ui.FlatBorder;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,6 +17,10 @@ public class LineChartToolTip extends JPanel {
         
         this.setLayout(new BorderLayout());
         this.setBorder(new FlatBorder());
+        this.setOpaque(true);
+        
+        //Transperent:
+        this.setBackground(new Color(50, 50, 50, 200));
         
         labelText = new JLabel();
         labelText.setBorder(new EmptyBorder(5, 5, 0, 5));
