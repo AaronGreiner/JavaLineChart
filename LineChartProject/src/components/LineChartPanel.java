@@ -10,10 +10,11 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.CubicCurve2D;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import javax.swing.JPanel;
 
 public class LineChartPanel extends JPanel {
@@ -50,11 +51,7 @@ public class LineChartPanel extends JPanel {
     private Point pos_mouse = new Point();
     private Point pos_tip = new Point();
     
-//    private ArrayList<String> listString = new ArrayList<String>();
-//    private ArrayList<Integer> listValue = new ArrayList<Integer>();
-//    private ArrayList<Point> listPoints = new ArrayList<Point>();
-    
-    private int x_numElements = 60; //Eigentlich überflüssig
+    private int x_numElements = 1000; //Eigentlich überflüssig
     private int y_numElements = 10; //Eigentlich überflüssig
     private int size_curve = 1;
     private int current_index = 0;
@@ -72,6 +69,8 @@ public class LineChartPanel extends JPanel {
     public LineChartPanel() {
         
         loadDebugData();
+        manager.setVisibleRange(60);
+        manager.setVisibleStartIndex(0);
         
         init();
     }
@@ -104,6 +103,12 @@ public class LineChartPanel extends JPanel {
                 chartMouseClicked();
             }
         });
+        addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                chartMouseWheelMoved(e);
+            }
+        });
     }
     
     protected void paintComponent(Graphics g) {
@@ -127,10 +132,8 @@ public class LineChartPanel extends JPanel {
             return;
         }
         
-        int max = manager.getMax();
-        int min = manager.getMin();
-        
-        System.out.println("MIN: " + min + " MAX: " + max);
+        int max = manager.getMaxVisible();
+        int min = manager.getMinVisible();
         
         int position_x_on_y;
         
@@ -159,7 +162,7 @@ public class LineChartPanel extends JPanel {
         pos_zero.y = position_x_on_y;
         
         length_x_achse = pos_x.x - pos_zero.x;
-        dist_x_element = (double)length_x_achse / x_numElements;
+        dist_x_element = (double)length_x_achse / manager.getVisibleRange();
         
         length_y_achse = pos_zero.y - pos_y.y;
         dist_y_element = (double)length_y_achse / y_numElements;
@@ -181,37 +184,6 @@ public class LineChartPanel extends JPanel {
             g2.drawLine(pos_zero.x, (d.height - offset_border), pos_y.x, pos_y.y); //Y Achse
         }
         
-        //X-Achse Einteilung:
-        if (paint_line_marks) {
-            for (int i = 0; i < x_numElements; i++) {
-                if (i != 0) {
-                    
-                    int pos = (int)((pos_zero.x + Math.round(dist_x_element * i)));
-                    int x1 = pos;
-                    int y1 = pos_x.y + size_line_marks;
-                    int x2 = pos;
-                    int y2 = pos_x.y - size_line_marks;
-                    
-                    g2.drawLine(x1, y1, x2, y2);
-                }
-            }
-        }
-        
-        //Y-Achse Einteilung:
-        if (paint_line_marks) {
-            for (int i = 0; i < y_numElements; i++) {
-                if (i != 0) {
-                    int pos = (int)((pos_zero.y - Math.round(dist_y_element * i)));
-                    int x1 = pos_y.x + size_line_marks;
-                    int y1 = pos;
-                    int x2 = pos_y.x - size_line_marks;
-                    int y2 = pos;
-                    
-                    g2.drawLine(x1, y1, x2, y2);
-                }
-            }
-        }
-        
         //Daten anzeigen:
         g2.setColor(color_primary);
         g2.setStroke(new BasicStroke(size_stroke));
@@ -220,16 +192,21 @@ public class LineChartPanel extends JPanel {
         Point pointTemp2 = new Point();
         double temp = Double.valueOf(length_y_achse) / Double.valueOf(max);
         
-        for (int i = 0; i < x_numElements; i++) {
+        System.out.println(manager.getVisibleStartIndex() + "  " + manager.getVisibleEndIndex());
+        
+        System.out.println("-");
+        for (int i = manager.getVisibleStartIndex(); i < manager.getVisibleEndIndex(); i++) {
             
             pointTemp.y = (int)(pos_zero.y - manager.getValue(i) * temp);
-            pointTemp.x = (int)(pos_zero.x + Math.round(dist_x_element * i));
+            pointTemp.x = (int)(pos_zero.x + Math.round(dist_x_element * (i - manager.getVisibleStartIndex())));
+            
+//            System.out.println(pointTemp.y + "  " + pointTemp.x);
             
             manager.get(i).setLocation(new Point(pointTemp));
             
             g2.setColor(color_primary);
             
-            if (i != 0) {
+            if (i != manager.getVisibleStartIndex()) {
                 switch (line_type) {
                     case STRAIGHT:
                         g2.drawLine(pointTemp2.x, pointTemp2.y, pointTemp.x, pointTemp.y);
@@ -249,13 +226,9 @@ public class LineChartPanel extends JPanel {
         }
         
         //Punkte anzeigen:
-        for (int i = 0; i < manager.size(); i++) {
+        for (int i = manager.getVisibleStartIndex(); i < manager.getVisibleEndIndex(); i++) {
             
-            if (manager.getValue(i) >= 0) {
-                g2.setColor(Color.green);
-            } else {
-                g2.setColor(Color.red);
-            }
+            g2.setColor(manager.get(i).getColor());
             
             if (paint_dot) {
                 //g2.fillOval(pointTemp.x - 2, pointTemp.y - 2, 5, 5);
@@ -312,7 +285,7 @@ public class LineChartPanel extends JPanel {
         float dist;
         float dist_temp = 999999;
         
-        for (int i = 0; i < manager.size(); i++) {
+        for (int i = manager.getVisibleStartIndex(); i < manager.getVisibleEndIndex(); i++) {
             
             x2 = manager.get(i).getX();
             y2 = manager.get(i).getY();
@@ -422,4 +395,25 @@ public class LineChartPanel extends JPanel {
         System.out.println("RELOAD DEBUG DATA");
     }
     
+    private void chartMouseWheelMoved(MouseWheelEvent e) {
+        if (e.getWheelRotation() < 0) {
+            updateVisibleStartIndex(-3);
+        } else {
+            updateVisibleStartIndex(3);
+        }
+    }
+    
+    public void updateVisibleStartIndex(int x) {
+        
+        int update = manager.getVisibleStartIndex() + x;
+        
+        if (update < 0) {
+            update = 0;
+        } else if (update > manager.size() - manager.getVisibleRange()) {
+            update = manager.size() - manager.getVisibleRange();
+        }
+        
+        manager.setVisibleStartIndex(update);
+        this.repaint();
+    }
 }

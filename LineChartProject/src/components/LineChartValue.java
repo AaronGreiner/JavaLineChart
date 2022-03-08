@@ -1,5 +1,6 @@
 package components;
 
+import java.awt.Color;
 import java.awt.Point;
 
 public class LineChartValue {
@@ -8,10 +9,17 @@ public class LineChartValue {
     private String text;
     
     private Point location;
+    private Color color;
     
     public LineChartValue(int value, String text) {
         this.value = value;
         this.text = text;
+        
+        if (value >= 0) {
+            this.color = Color.green;
+        } else {
+            this.color = Color.red;
+        }
         
         location = new Point(0, 0);
     }
@@ -43,5 +51,9 @@ public class LineChartValue {
     
     public String getText() {
         return text;
+    }
+    
+    public Color getColor() {
+        return color;
     }
 }

@@ -12,24 +12,34 @@ public class Frame extends javax.swing.JFrame {
 
         btnBack = new javax.swing.JButton();
         btnForward = new javax.swing.JButton();
-        lineChartPanel1 = new components.LineChartPanel();
+        panel = new components.LineChartPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Test - LineChart");
         setAlwaysOnTop(true);
 
         btnBack.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/arrow_back.png"))); // NOI18N
+        btnBack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBackActionPerformed(evt);
+            }
+        });
 
         btnForward.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/arrow_forward.png"))); // NOI18N
+        btnForward.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnForwardActionPerformed(evt);
+            }
+        });
 
-        javax.swing.GroupLayout lineChartPanel1Layout = new javax.swing.GroupLayout(lineChartPanel1);
-        lineChartPanel1.setLayout(lineChartPanel1Layout);
-        lineChartPanel1Layout.setHorizontalGroup(
-            lineChartPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout panelLayout = new javax.swing.GroupLayout(panel);
+        panel.setLayout(panelLayout);
+        panelLayout.setHorizontalGroup(
+            panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 0, Short.MAX_VALUE)
         );
-        lineChartPanel1Layout.setVerticalGroup(
-            lineChartPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        panelLayout.setVerticalGroup(
+            panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 648, Short.MAX_VALUE)
         );
 
@@ -40,7 +50,7 @@ public class Frame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lineChartPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnBack)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 966, Short.MAX_VALUE)
@@ -51,7 +61,7 @@ public class Frame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lineChartPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(btnForward)
@@ -62,9 +72,17 @@ public class Frame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        panel.updateVisibleStartIndex(-1);
+    }//GEN-LAST:event_btnBackActionPerformed
+
+    private void btnForwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnForwardActionPerformed
+        panel.updateVisibleStartIndex(1);
+    }//GEN-LAST:event_btnForwardActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBack;
     private javax.swing.JButton btnForward;
-    private components.LineChartPanel lineChartPanel1;
+    private components.LineChartPanel panel;
     // End of variables declaration//GEN-END:variables
 }
